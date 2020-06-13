@@ -15,11 +15,9 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "disguise",
-	Short: "Go servers templates generator.",
-	Long:  "Disguise makes you writing the base for your go server easier.",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Short: "GitHub Account Analyzer.",
+	Long:  "Disguise is a CLI library for Go that analyze github accounts." +
+		"\nThis application is a tool to get some metrics from your github account",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
