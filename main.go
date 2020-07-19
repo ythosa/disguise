@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -65,11 +66,15 @@ func ForEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	}
 }
 
+
 func CheckLink(n *html.Node, extension string) Element {
 	var hasRightStyles = false
 	var isTrackedFile = false
 	var isDir = false
 	var href string
+
+	matchFile := regexp.MustCompile(fmt.Sprintf(".*%s$", extension))
+	matchDir := regexp.MustCompile(`.+/tree/.+`)
 
 	for _, a := range n.Attr {
 		switch a.Key {
@@ -77,12 +82,11 @@ func CheckLink(n *html.Node, extension string) Element {
 			href = a.Val
 			fname := strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
 
-			if len(strings.Split(fname, extension)) > 1 {
+			if matchFile.Match([]byte(fname)) {
 				isTrackedFile = true
-			} else if len(strings.Split(href, "tree")) > 1 {
+			} else if matchDir.Match([]byte(href)) {
 				isDir = true
 			}
-
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
 				hasRightStyles = true
