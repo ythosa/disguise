@@ -1,7 +1,5 @@
-package main
-
-import "github.com/ythosa/disguise/cmd"
+package disguise
 
 func main() {
-	cmd.Execute()
+
 }
