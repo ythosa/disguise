@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	go build -o disguise.exe -v ./main.go 
+	go build -v ./main.go
 
 .PHONY: run
 run:
