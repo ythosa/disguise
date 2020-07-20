@@ -15,6 +15,7 @@ type Element interface {}
 
 type FileHref struct {
 	href string
+	fname string
 }
 
 type DirHref struct {
@@ -67,16 +68,19 @@ func Extract(url, extension string) ([]string, error) {
 			t := CheckLink(n, extension)
 			switch v := t.(type) {
 			case DirHref:
-				fmt.Println("Dir: ", v.href)
 				dirs = append(dirs, v.href)
 			case FileHref:
-				fmt.Println("File: ", v.href)
+				v.PrintMarkDown()
 			}
 		}
 	}
 
 	ForEachNode(doc, visitNode, nil)
 	return dirs, nil
+}
+
+func (f *FileHref) PrintMarkDown() {
+	fmt.Printf("- [ ] (%s)[%s] \n", f.fname, f.href)
 }
 
 // ForEachNode ...
@@ -98,6 +102,7 @@ func CheckLink(n *html.Node, extension string) Element {
 	var isTrackedFile = false
 	var isDir = false
 	var href string
+	var fname string
 
 	matchFile := regexp.MustCompile(fmt.Sprintf(".*%s$", extension))
 	matchDir := regexp.MustCompile(`.+/tree/.+`)
@@ -106,7 +111,7 @@ func CheckLink(n *html.Node, extension string) Element {
 		switch a.Key {
 		case "href":
 			href = "https://github.com" + a.Val
-			fname := strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
+			fname = strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
 
 			if matchFile.Match([]byte(fname)) {
 				isTrackedFile = true
@@ -122,7 +127,7 @@ func CheckLink(n *html.Node, extension string) Element {
 
 	if hasRightStyles {
 		if isTrackedFile {
-			return FileHref{href}
+			return FileHref{href, fname}
 		}
 
 		if isDir {
