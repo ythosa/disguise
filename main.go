@@ -113,10 +113,10 @@ func CheckLink(n *html.Node, extension string) Element {
 			href = "https://github.com" + a.Val
 			fname = strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
 
-			if matchFile.Match([]byte(fname)) {
-				isTrackedFile = true
-			} else if matchDir.Match([]byte(href)) {
+			if matchDir.Match([]byte(href)) {
 				isDir = true
+			} else if matchFile.Match([]byte(fname)) {
+				isTrackedFile = true
 			}
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
@@ -127,7 +127,7 @@ func CheckLink(n *html.Node, extension string) Element {
 
 	if hasRightStyles {
 		if isTrackedFile {
-			return FileHref{href, fname}
+			return FileHref{href, fname[:len(fname) - len(extension)]}
 		}
 
 		if isDir {
