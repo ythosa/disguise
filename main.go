@@ -80,7 +80,7 @@ func Extract(url, extension string) ([]string, error) {
 }
 
 func (f *FileHref) PrintMarkDown() {
-	fmt.Printf("- [ ] (%s)[%s] \n", f.fname, f.href)
+	fmt.Printf("- [ ] [%s](%s) \n", f.fname, f.href)
 }
 
 // ForEachNode ...
