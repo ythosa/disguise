@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -20,6 +21,30 @@ type DirHref struct {
 	href string
 }
 
+// BreadthFirst ...
+func BreadthFirst(f func(item, extension string) []string, worklist []string, extension string) {
+	seen := make(map[string]bool)
+	for len(worklist) > 0 {
+		items := worklist
+		worklist = nil
+		for _, item := range items {
+			if !seen[item] {
+				seen[item] = true
+				worklist = append(worklist, f(item, extension)...)
+			}
+		}
+	}
+}
+
+func Crawl(url, extension string) []string {
+	list, err := Extract(url, extension)
+	if err != nil {
+		log.Print(err)
+	}
+
+	return list
+}
+
 func Extract(url, extension string) ([]string, error) {
 	res, err := http.Get(url)
 	if err != nil {
@@ -36,13 +61,14 @@ func Extract(url, extension string) ([]string, error) {
 		return nil, fmt.Errorf("analise %s by HTML: %v", url, err)
 	}
 
-	var fileList []string
+	var dirs []string
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
 			t := CheckLink(n, extension)
 			switch v := t.(type) {
 			case DirHref:
 				fmt.Println("Dir: ", v.href)
+				dirs = append(dirs, v.href)
 			case FileHref:
 				fmt.Println("File: ", v.href)
 			}
@@ -50,7 +76,7 @@ func Extract(url, extension string) ([]string, error) {
 	}
 
 	ForEachNode(doc, visitNode, nil)
-	return fileList, nil
+	return dirs, nil
 }
 
 // ForEachNode ...
@@ -79,7 +105,7 @@ func CheckLink(n *html.Node, extension string) Element {
 	for _, a := range n.Attr {
 		switch a.Key {
 		case "href":
-			href = a.Val
+			href = "https://github.com" + a.Val
 			fname := strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
 
 			if matchFile.Match([]byte(fname)) {
@@ -111,10 +137,7 @@ func main() {
 	url := os.Args[1]
 	extension := os.Args[2]
 
-	_, err := Extract(url, extension)
-	if err != nil {
-		fmt.Println(err)
-	}
+	BreadthFirst(Crawl, []string{url}, extension)
 
 	//fmt.Println(res)
 }
