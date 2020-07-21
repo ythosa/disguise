@@ -1,9 +1,9 @@
 .PHONY: build
 build:
-	go build -v ./main.go
+	go build -o disguise -v ./src/main.go
 
 .PHONY: run
 run:
-	go run ./main.go
+	go run ./src/main.go
 
 .DEFAULT_GOAL := build
