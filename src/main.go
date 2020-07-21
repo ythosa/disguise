@@ -43,11 +43,12 @@ func Extract(url, extension string, files *map[string]chan FileHref) error {
 			t := CheckLink(n, extension)
 			switch v := t.(type) {
 			case DirHref:
-				//dirs = append(dirs, v.href)
-				//fmt.Println(v.href)
 				go Extract(v.href, extension, files)
 			case FileHref:
 				//v.PrintMarkDown()
+				if _, ok := (*files)[v.dir]; !ok {
+					(*files)[v.dir] = make(chan FileHref)
+				}
 				(*files)[v.dir] <- v
 			}
 		}
@@ -57,7 +58,6 @@ func Extract(url, extension string, files *map[string]chan FileHref) error {
 	return nil
 }
 
-// ForEachNode ...
 func ForEachNode(n *html.Node, pre func(n *html.Node)) {
 	if pre != nil {
 		pre(n)
@@ -120,10 +120,6 @@ func CheckLink(n *html.Node, extension string) Element {
 
 	return nil
 }
-
-//func CrawlLinks(url string, files map[string]chan string) {
-//	Extract(url, files)
-//}
 
 func main() {
 	url := os.Args[1]
