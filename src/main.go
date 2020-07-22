@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"golang.org/x/net/html"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
-
-	"golang.org/x/net/html"
 )
 
 type Element interface {}
@@ -22,48 +22,10 @@ type DirHref struct {
 	href string
 }
 
-func Extract(url, extension string, files *map[string]chan FileHref) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("getting %s by HTML: %v", url, err)
-	}
-
-	doc, err := html.Parse(res.Body)
-	if err != nil {
-		return fmt.Errorf("analise %s by HTML: %v", url, err)
-	}
-
-	visitNode := func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "a" {
-			t := CheckLink(n, extension)
-			switch v := t.(type) {
-			case DirHref:
-				go Extract(v.href, extension, files)
-			case FileHref:
-				//v.PrintMarkDown()
-				if _, ok := (*files)[v.dir]; !ok {
-					(*files)[v.dir] = make(chan FileHref)
-				}
-				(*files)[v.dir] <- v
-			}
-		}
-	}
-
-	ForEachNode(doc, visitNode)
-	return nil
-}
-
-func ForEachNode(n *html.Node, pre func(n *html.Node)) {
-	if pre != nil {
-		pre(n)
-	}
+func ForEachNode(n *html.Node, f func(n *html.Node)) {
+	f(n)
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		ForEachNode(c, pre)
+		ForEachNode(c, f)
 	}
 }
 
@@ -121,20 +83,62 @@ func CheckLink(n *html.Node, extension string) Element {
 	return nil
 }
 
+func Extract(url, extension string) []Element {
+	res, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		log.Fatalf("getting %s by HTML: %v", url, err)
+	}
+
+	doc, err := html.Parse(res.Body)
+	if err != nil {
+		log.Fatalf("analise %s by HTML: %v", url, err)
+	}
+
+	files := make([]Element, 0)
+	visitNode := func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			files = append(files, CheckLink(n, extension))
+		}
+	}
+
+	ForEachNode(doc, visitNode)
+	return files
+}
+
 func main() {
 	url := os.Args[1]
 	extension := os.Args[2]
 
-	doccedfiles := make(map[string]chan FileHref)
+	worklist := make(chan []Element)
+	results := make([]FileHref, 0)
 
-	go Extract(url, extension, &doccedfiles)
+	var n int
+	n++
+	go func() {
+		worklist <- Extract(url, extension)
+	}()
 
-	for {
-		for _, d := range doccedfiles {
-			select {
-			case f := <- d:
-				f.PrintMarkDown()
+	for ; n > 0; n-- {
+		list := <-worklist
+		for _, f := range list {
+			switch v := f.(type) {
+			case DirHref:
+				n++
+				go func() {
+					worklist <- Extract(v.href, extension)
+				}()
+			case FileHref:
+				results = append(results, v)
 			}
 		}
+	}
+
+	for _, r := range results {
+		r.PrintMarkDown()
 	}
 }
