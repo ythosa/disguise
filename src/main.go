@@ -177,5 +177,12 @@ func main() {
 	extension := os.Args[2]
 
 	md := Crawl(url, extension)
-	PrintResults(os.Stdout, md)
+
+	fname := strings.Split(url, "/")[len(strings.Split(url, "/")) - 1]
+	f, err := os.Create(fmt.Sprintf("%s.txt", fname))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	PrintResults(f, md)
 }

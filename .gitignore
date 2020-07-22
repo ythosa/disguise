@@ -16,3 +16,6 @@
 
 .idea/
 .vscode/
+
+# Project generated files
+*.txt
