@@ -30,8 +30,8 @@ func ForEachNode(n *html.Node, f func(n *html.Node)) {
 	}
 }
 
-func (f *FileHref) PrintMarkDown() {
-	fmt.Printf("- [ ] [%s](%s) \n", f.name, f.href)
+func (f *FileHref) GetMarkDown() string {
+	return fmt.Sprintf("- [ ] [%s](%s) \n", f.name, f.href)
 }
 
 func CheckLink(n *html.Node, extension string) Element {
@@ -43,7 +43,7 @@ func CheckLink(n *html.Node, extension string) Element {
 	var fname string
 	var dirname string
 
-	matchFile := regexp.MustCompile(fmt.Sprintf(".*%s$", extension))
+	matchFile := regexp.MustCompile(fmt.Sprintf(".+/blob/.+%s$", extension))
 	matchDir := regexp.MustCompile(`.+/tree/.+`)
 
 	for _, a := range n.Attr {
@@ -54,7 +54,7 @@ func CheckLink(n *html.Node, extension string) Element {
 
 			if matchDir.Match([]byte(href)) {
 				isDir = true
-			} else if matchFile.Match([]byte(fname)) {
+			} else if matchFile.Match([]byte(href)) {
 				isTrackedFile = true
 				pathArray := strings.Split(href, "/")
 				dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
@@ -122,7 +122,7 @@ func GroupByDir(files []FileHref) map[string][]FileHref {
 	return grouped
 }
 
-func Crawl(out io.Writer, url, extension string) {
+func Crawl(url, extension string) []FileHref {
 	worklist := make(chan []Element)
 	results := make([]FileHref, 0)
 
@@ -149,10 +149,17 @@ func Crawl(out io.Writer, url, extension string) {
 		}
 	}
 
+	return results
+}
+
+func PrintResults(out io.Writer, results []FileHref) {
 	for dir, files := range GroupByDir(results) {
 		fmt.Println(dir)
 		for _, f := range files {
-			f.PrintMarkDown()
+			_, err := fmt.Fprint(out, f.GetMarkDown())
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }
@@ -161,5 +168,6 @@ func main() {
 	url := os.Args[1]
 	extension := os.Args[2]
 
-	Crawl(os.Stdout, url, extension)
+	md := Crawl(url, extension)
+	PrintResults(os.Stdout, md)
 }
