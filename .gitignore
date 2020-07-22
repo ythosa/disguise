@@ -19,3 +19,6 @@
 
 # Project generated files
 *.txt
+
+# Binaries
+disguise
