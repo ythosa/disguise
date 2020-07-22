@@ -60,19 +60,17 @@ func CheckLink(n *html.Node, extension string) Element {
 		}
 	}
 
-	if hasRightStyles {
-		if isTrackedFile {
-			return FileHref {
-				href: href,
-				name: fname[:len(fname) - len(extension)],
-				dir: dirname,
-			}
+	if hasRightStyles && isTrackedFile {
+		return FileHref{
+			href: href,
+			name: fname[:len(fname)-len(extension)],
+			dir:  dirname,
 		}
+	}
 
-		if isDir {
-			return DirHref {
-				href: href,
-			}
+	if hasRightStyles && isDir {
+		return DirHref {
+			href: href,
 		}
 	}
 
@@ -115,7 +113,6 @@ func ForEachNode(n *html.Node, f func(n *html.Node)) {
 
 func GroupByDir(files []FileHref) map[string][]FileHref {
 	grouped := make(map[string][]FileHref)
-
 	for _, f := range files {
 		grouped[f.dir] = append(grouped[f.dir], f)
 	}
@@ -127,9 +124,8 @@ func Crawl(url, extension string) []FileHref {
 	worklist := make(chan []Element)
 	results := make([]FileHref, 0)
 
-	var n int
-
 	// Start with cmd arguments
+	var n int
 	n++
 	go func() {
 		worklist <- Extract(url, extension)
