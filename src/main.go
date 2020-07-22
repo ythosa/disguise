@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/net/html"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 type Element interface {}
@@ -21,13 +22,6 @@ type FileHref struct {
 
 type DirHref struct {
 	href string
-}
-
-func ForEachNode(n *html.Node, f func(n *html.Node)) {
-	f(n)
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		ForEachNode(c, f)
-	}
 }
 
 func (f *FileHref) GetMarkDown() string {
@@ -112,6 +106,13 @@ func Extract(url, extension string) []Element {
 	return files
 }
 
+func ForEachNode(n *html.Node, f func(n *html.Node)) {
+	f(n)
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ForEachNode(c, f)
+	}
+}
+
 func GroupByDir(files []FileHref) map[string][]FileHref {
 	grouped := make(map[string][]FileHref)
 
@@ -154,12 +155,19 @@ func Crawl(url, extension string) []FileHref {
 
 func PrintResults(out io.Writer, results []FileHref) {
 	for dir, files := range GroupByDir(results) {
-		fmt.Println(dir)
+		_, err := fmt.Fprintf(out, "* ### %s\n", dir)
+		if err != nil {
+			log.Fatal(err)
+		}
 		for _, f := range files {
 			_, err := fmt.Fprint(out, f.GetMarkDown())
 			if err != nil {
 				log.Fatal(err)
 			}
+		}
+		_, err = fmt.Fprintf(out, "\n")
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 }
