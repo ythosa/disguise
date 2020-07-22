@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/net/html"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -121,10 +122,7 @@ func GroupByDir(files []FileHref) map[string][]FileHref {
 	return grouped
 }
 
-func main() {
-	url := os.Args[1]
-	extension := os.Args[2]
-
+func Crawl(out io.Writer, url, extension string) {
 	worklist := make(chan []Element)
 	results := make([]FileHref, 0)
 
@@ -157,4 +155,11 @@ func main() {
 			f.PrintMarkDown()
 		}
 	}
+}
+
+func main() {
+	url := os.Args[1]
+	extension := os.Args[2]
+
+	Crawl(os.Stdout, url, extension)
 }
