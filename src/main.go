@@ -55,7 +55,8 @@ func CheckLink(n *html.Node, extension string) Element {
 				isDir = true
 			} else if matchFile.Match([]byte(fname)) {
 				isTrackedFile = true
-				dirname = strings.Join(strings.Split(href, "/")[4:], "")
+				pathArray := strings.Split(href, "/")
+				dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
 			}
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
@@ -110,6 +111,16 @@ func Extract(url, extension string) []Element {
 	return files
 }
 
+func GroupByDir(files []FileHref) map[string][]FileHref {
+	grouped := make(map[string][]FileHref)
+
+	for _, f := range files {
+		grouped[f.dir] = append(grouped[f.dir], f)
+	}
+
+	return grouped
+}
+
 func main() {
 	url := os.Args[1]
 	extension := os.Args[2]
@@ -118,6 +129,8 @@ func main() {
 	results := make([]FileHref, 0)
 
 	var n int
+
+	// Start with cmd arguments
 	n++
 	go func() {
 		worklist <- Extract(url, extension)
@@ -138,7 +151,10 @@ func main() {
 		}
 	}
 
-	for _, r := range results {
-		r.PrintMarkDown()
+	for dir, files := range GroupByDir(results) {
+		fmt.Println(dir)
+		for _, f := range files {
+			f.PrintMarkDown()
+		}
 	}
 }
