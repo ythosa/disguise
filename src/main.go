@@ -8,7 +8,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"sync"
 
 	"golang.org/x/net/html"
 )
@@ -101,21 +100,15 @@ func Extract(url, extension string) []Element {
 		}
 	}
 
-	var wg sync.WaitGroup
-	ForEachNode(doc, visitNode, &wg)
+	ForEachNode(doc, visitNode)
 	return files
 }
 
-func ForEachNode(n *html.Node, f func(n *html.Node), wg *sync.WaitGroup) {
+func ForEachNode(n *html.Node, f func(n *html.Node)) {
 	f(n)
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		go func(c *html.Node, f func(n *html.Node)){
-			wg.Add(1)
-			defer wg.Done()
-			ForEachNode(c, f, wg)
-		}(c, f)
+		ForEachNode(c, f)
 	}
-	wg.Wait()
 }
 
 func GroupByDir(files []FileHref) map[string][]FileHref {
@@ -142,7 +135,9 @@ func Crawl(url, extension string) []FileHref {
 			switch v := f.(type) {
 			case DirHref:
 				n++
-				worklist <- Extract(v.href, extension)
+				go func() {
+					worklist <- Extract(v.href, extension)
+				}()
 			case FileHref:
 				results = append(results, v)
 			}
