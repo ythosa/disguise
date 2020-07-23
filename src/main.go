@@ -18,11 +18,11 @@ type Element interface {}
 type MDFile struct {
 	href    string
 	name    string
-	dirname string
-	MDDir
+	dir 	MDDir
 }
 
 type MDDir struct {
+	name string
 	href string
 }
 
@@ -32,12 +32,13 @@ func (f *MDFile) GetMarkDown() string {
 
 func CheckLink(n *html.Node, extension string) Element {
 	var hasRightStyles = false
-	var isTrackedFile = false
-	var isDir = false
+	var isTrackedFile  = false
+	var isDir          = false
 
-	var href string
-	var fname string
+	var fhref string
+	var fname   string
 	var dirname string
+	var dirhref string
 
 	matchFile := regexp.MustCompile(fmt.Sprintf(".+/blob/.+%s$", extension))
 	matchDir := regexp.MustCompile(`.+/tree/.+`)
@@ -45,16 +46,20 @@ func CheckLink(n *html.Node, extension string) Element {
 	for _, a := range n.Attr {
 		switch a.Key {
 		case "href":
-			href = "https://github.com" + a.Val
-			//fname = strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
+			fhref = "https://github.com" + a.Val
 			fname = n.FirstChild.Data
 
-			if matchDir.Match([]byte(href)) {
+			pathArray := strings.Split(fhref, "/")
+			if matchDir.Match([]byte(fhref)) {
 				isDir = true
-			} else if matchFile.Match([]byte(href)) {
+				dirname = strings.Join(pathArray[5:len(pathArray)-1], "/")
+			} else if matchFile.Match([]byte(fhref)) {
 				isTrackedFile = true
-				pathArray := strings.Split(href, "/")
 				dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
+			}
+
+			if isDir || isTrackedFile {
+				dirhref = strings.Join(pathArray[:len(pathArray)-1], "/")
 			}
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
@@ -65,15 +70,19 @@ func CheckLink(n *html.Node, extension string) Element {
 
 	if hasRightStyles && isTrackedFile {
 		return MDFile{
-			href:    href,
+			href:    fhref,
 			name:    fname[:len(fname)-len(extension)],
-			dirname: dirname,
+			dir: MDDir{
+				href: dirhref,
+				name: dirname,
+			},
 		}
 	}
 
 	if hasRightStyles && isDir {
 		return MDDir{
-			href: href,
+			href: dirhref,
+			name: dirname,
 		}
 	}
 
@@ -117,7 +126,7 @@ func ForEachNode(n *html.Node, f func(n *html.Node)) {
 func GroupByDir(files []MDFile) map[string][]MDFile {
 	grouped := make(map[string][]MDFile)
 	for _, f := range files {
-		grouped[f.dirname] = append(grouped[f.dirname], f)
+		grouped[f.dir.name] = append(grouped[f.dir.name], f)
 	}
 
 	return grouped
