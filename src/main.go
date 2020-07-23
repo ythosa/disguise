@@ -234,6 +234,10 @@ func CheckInputData(url, ext string) (bool, error) {
 	return isURL && isExt, nil
 }
 
+/* Example of starting program
+	<./cli_path> [options] --url "<repository_name>" --ext "<files_extension>"
+	./disguise --ignore "Platform.Setters.Tests" --url https://github.com/linksplatform/Setters/ --ext ".cs"
+*/
 func main() {
 	flag.Parse()
 
@@ -242,7 +246,10 @@ func main() {
 		panic(err)
 	}
 	if !correct {
-		panic("Error. Enter correct data for CLI look like \"<./cli_path>\" [options] \"<repository_name>\" \"<files_extension>\".")
+		panic("Error. Enter correct data for CLI look like  " +
+			"<./cli_path> [options] --url \"<repository_name>\" --ext \"<files_extension>\".\n" +
+			"Options could be: \n\t" +
+			"--ignore \"<some_dir_name_in_repo>\"")
 	}
 
 	var ignoreDirs = strings.Split(*toIgnore, " ")
