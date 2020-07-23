@@ -200,57 +200,74 @@ func PrintResults(out io.Writer, results []MDFile) {
 	}
 }
 
+func CheckRepositoryURL(url string) error {
+	match, _ := regexp.MatchString(`^https:\/\/github.com/.*$`, url)
+	if !match {
+		return fmt.Errorf("invalid input repository URL")
+	}
+	return nil
+}
+
+func CheckExtension(ext string) error {
+	match, _ := regexp.MatchString(`^\.\S*$`, ext)
+	if !match {
+		return fmt.Errorf("invalid input file extension")
+	}
+	return nil
+}
+
+func CheckInputData(url, ext string) error {
+	err := CheckRepositoryURL(url)
+	if err != nil {
+		return err
+	}
+
+	err = CheckExtension(ext)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getHelp() {
+	fmt.Println("~ Welcome to the disguise club buddy. ~\n\n" +
+		"Disguise is CLI tool for generation markdown  with list of github repository directories and files." +
+		"Can be used for creation repositories issue about the process of documenting the code.\n\n" +
+		"Usage example:\n\t" +
+		"<./cli_path> [options] --url \"<repository_name>\" --ext \"<files_extension>\".\n\t" +
+		"Options could be: \n\t\t" +
+		"--ignore \"<some_dir_name_in_repo>\"\n\n" +
+		"Author: Ythosa <vasus714@yandex.ru> https://github.com/Ythosa")
+}
+
+var help = flag.Bool("help", false, "Returns help with CLI.")
 var url = flag.String("url", "", "Which repository should have documentation.")
 var extension = flag.String("ext", "", "Which files should have documentation")
 var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
 
-func CheckRepositoryURL(url string) (bool, error) {
-	match, err := regexp.Match(`^https:\/\/github.com/.*$`, []byte(url))
-	if err != nil {
-		return false, err
-	}
-	return match, nil
-}
-
-func CheckExtension(ext string) (bool, error) {
-	match, err := regexp.Match(`^\.\S*$`, []byte(ext))
-	if err != nil {
-		return false, err
-	}
-	return match, nil
-}
-
-func CheckInputData(url, ext string) (bool, error) {
-	isURL, err := CheckRepositoryURL(url)
-	if err != nil {
-		return false, err
-	}
-
-	isExt, err := CheckExtension(ext)
-	if err != nil {
-		return false, err
-	}
-
-	return isURL && isExt, nil
-}
-
 /* Example of starting program
-	<./cli_path> [options] --url "<repository_name>" --ext "<files_extension>"
-	./disguise --ignore "Platform.Setters.Tests" --url https://github.com/linksplatform/Setters/ --ext ".cs"
+	<./cli_path> [options] -url "<repository_name>" -ext "<files_extension>"
+	./disguise -ignore "Platform.Setters.Tests" -url https://github.com/linksplatform/Setters/ --ext ".cs"
 */
 func main() {
 	flag.Parse()
 
-	correct, err := CheckInputData(*url, *extension)
+	if *help {
+		getHelp()
+		return
+	}
+
+	err := CheckInputData(*url, *extension)
 	if err != nil {
-		panic(err)
+		fmt.Printf("error. %s. \n" +
+			"use -help flag to get using template.\n", err.Error())
+		return
 	}
-	if !correct {
-		panic("Error. Enter correct data for CLI look like  " +
-			"<./cli_path> [options] --url \"<repository_name>\" --ext \"<files_extension>\".\n" +
-			"Options could be: \n\t" +
-			"--ignore \"<some_dir_name_in_repo>\"")
-	}
+	//if !correct {
+	//	panic("Error! Invalid input data!\n" +
+	//		"Use --help flag to get using template.")
+	//}
 
 	var ignoreDirs = strings.Split(*toIgnore, " ")
 	md := Crawl(*url, *extension, ignoreDirs)
