@@ -19,6 +19,7 @@
 
 # Project generated files
 *.txt
+*.md
 
 # Binaries
 disguise
