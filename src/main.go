@@ -5,8 +5,6 @@ import (
 	"github.com/ythosa/disguise/src/commands"
 )
 
-
-
 var help = flag.Bool("help", false, "Returns help with CLI.")
 var url = flag.String("url", "", "Which repository should have documentation.")
 var extension = flag.String("ext", "", "Which files should have documentation")

@@ -5,7 +5,7 @@ import "fmt"
 func GetHelp() {
 	fmt.Println("\t~ Welcome to the disguise club buddy. ~\n" +
 		"Disguise is CLI tool for generation markdown  with list of github repository directories and files." +
-		"Can be used for creation repositories issue about the process of documenting the code.\n\n" +
+		"Can be used for creation repositories issues about the process of documenting the code.\n\n" +
 		"Usage example:\n\t" +
 		"./disguise [options] -url \"<repository_name>\" -ext \"<files_extension>\".\n" +
 		"Options could be: \n\t" +
