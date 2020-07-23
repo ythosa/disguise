@@ -20,6 +20,7 @@
 # Project generated files
 *.txt
 *.md
+results/
 
 # Binaries
 disguise

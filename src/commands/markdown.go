@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 	"regexp"
 	"strings"
 
@@ -34,8 +35,11 @@ func (d *MDDir) GetMarkDown() string {
 }
 
 func IsContains(elements []string, pattern string) bool {
+	if len(elements) == 0 {
+		return false
+	}
 	for _, e := range elements {
-		match, err := regexp.Match(pattern, []byte(e))
+		match, err := regexp.MatchString(e, pattern)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -52,10 +56,12 @@ func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 	var isTrackedFile  = false
 	var isDir          = false
 
-	var fhref   string
+	var href    string
 	var fname   string
 	var dirname string
 	var dirhref string
+
+	var pathArray []string
 
 	matchFile := regexp.MustCompile(fmt.Sprintf(".+/blob/.+%s$", extension))
 	matchDir := regexp.MustCompile(`.+/tree/.+`)
@@ -63,20 +69,16 @@ func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 	for _, a := range n.Attr {
 		switch a.Key {
 		case "href":
-			fhref = "https://github.com" + a.Val
+			href = "https://github.com" + a.Val
 			fname = n.FirstChild.Data
 
-			pathArray := strings.Split(fhref, "/")
-			if matchDir.Match([]byte(fhref)) {
+			pathArray = strings.Split(href, "/")
+			if matchDir.Match([]byte(href)) {
 				isDir = true
-				dirname = strings.Join(pathArray[5:len(pathArray)-1], "/")
-			} else if matchFile.Match([]byte(fhref)) {
+				dirname = strings.Join(pathArray[6:len(pathArray)], "/")
+			} else if matchFile.Match([]byte(href)) {
 				isTrackedFile = true
 				dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
-			}
-
-			if isDir || isTrackedFile {
-				dirhref = strings.Join(pathArray[:len(pathArray)-1], "/")
 			}
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
@@ -85,13 +87,17 @@ func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 		}
 	}
 
+	if !hasRightStyles {
+		return nil
+	}	
+
 	if IsContains(ignoreDirs, dirname) {
 		return nil
 	}
 
-	if hasRightStyles && isTrackedFile {
-		return MDFile{
-			href:    fhref,
+	if isTrackedFile {
+		return MDFile {
+			href:    href,
 			name:    fname[:len(fname)-len(extension)],
 			dir: MDDir{
 				href: dirhref,
@@ -100,9 +106,9 @@ func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 		}
 	}
 
-	if hasRightStyles && isDir {
-		return MDDir{
-			href: dirhref,
+	if isDir {
+		return MDDir {
+			href: href,
 			name: dirname,
 		}
 	}
@@ -171,6 +177,7 @@ func Crawl(url, extension string, ignoreDirs []string) []MDFile {
 			switch v := f.(type) {
 			case MDDir:
 				n++
+				time.Sleep(100 * time.Millisecond)
 				go func() {
 					worklist <- Extract(v.href, extension, ignoreDirs)
 				}()
@@ -202,12 +209,20 @@ func PrintResults(out io.Writer, results []MDFile) {
 	}
 }
 
-func GetMarkdown(url, extension, toIgnore string) {
+func getIgnoreDirs(toIgnore string) []string {
 	var ignoreDirs = strings.Split(toIgnore, " ")
-	md := Crawl(url, extension, ignoreDirs)
+	if ignoreDirs[0] == "" {
+		return make([]string, 0)
+	}
+	return ignoreDirs
+}
+
+func GetMarkdown(url, extension, toIgnore string) {
+	md := Crawl(url, extension, getIgnoreDirs(toIgnore))
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/")) - 1]
-	f, err := os.Create(fmt.Sprintf("%s.md", fname))
+
+	f, err := os.Create(fmt.Sprintf("./results/%s.md", fname))
 	if err != nil {
 		panic(err)
 	}
