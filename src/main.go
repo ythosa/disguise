@@ -27,7 +27,11 @@ type MDDir struct {
 }
 
 func (f *MDFile) GetMarkDown() string {
-	return fmt.Sprintf("- [ ] [%s](%s) \n", f.name, f.href)
+	return fmt.Sprintf("- [ ] [%s](%s)\n", f.name, f.href)
+}
+
+func (d *MDDir) GetMarkDown() string {
+	return fmt.Sprintf("* ###[%s](%s)\n", d.name, d.href)
 }
 
 func CheckLink(n *html.Node, extension string) Element {
@@ -123,10 +127,10 @@ func ForEachNode(n *html.Node, f func(n *html.Node)) {
 	}
 }
 
-func GroupByDir(files []MDFile) map[string][]MDFile {
-	grouped := make(map[string][]MDFile)
+func GroupByDir(files []MDFile) map[MDDir][]MDFile {
+	grouped := make(map[MDDir][]MDFile)
 	for _, f := range files {
-		grouped[f.dir.name] = append(grouped[f.dir.name], f)
+		grouped[f.dir] = append(grouped[f.dir], f)
 	}
 
 	return grouped
@@ -161,7 +165,7 @@ func Crawl(url, extension string) []MDFile {
 
 func PrintResults(out io.Writer, results []MDFile) {
 	for dir, files := range GroupByDir(results) {
-		_, err := fmt.Fprintf(out, "* ### %s\n", dir)
+		_, err := fmt.Fprintf(out, dir.GetMarkDown())
 		if err != nil {
 			log.Fatal(err)
 		}
