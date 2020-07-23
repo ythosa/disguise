@@ -185,11 +185,16 @@ func PrintResults(out io.Writer, results []MDFile) {
 var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
 
 func main() {
-	//flag.Parse()
-	//fmt.Println(*toIgnore)
+	flag.Parse()
 
-	url := os.Args[1]
-	extension := os.Args[2]
+	var url       string
+	var extension string
+	if len(os.Args) == 2 {
+		url = os.Args[1]
+		extension = os.Args[2]
+	} else {
+		panic("Error. Enter correct data for CLI! Look like <./cli_path> <repository_name> <files_extension>")
+	}
 
 	md := Crawl(url, extension)
 
