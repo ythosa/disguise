@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/ythosa/disguise/src/checks"
 	"github.com/ythosa/disguise/src/commands"
 )
 
@@ -24,6 +26,12 @@ func main() {
 	}
 
 	if (len(*url) != 0) || (len(*extension) != 0) {
+		err := checks.CheckInputData(*url, *extension)
+		if err != nil {
+			fmt.Printf("error. %s. \n" +
+				"use -help flag to get using template.\n", err.Error())
+			return
+		}
 		commands.GetMarkdown(*url, *extension, *toIgnore)
 		return
 	}

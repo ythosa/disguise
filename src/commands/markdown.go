@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/ythosa/disguise/src/checks"
 	"io"
 	"log"
 	"net/http"
@@ -53,7 +52,7 @@ func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 	var isTrackedFile  = false
 	var isDir          = false
 
-	var fhref string
+	var fhref   string
 	var fname   string
 	var dirname string
 	var dirhref string
@@ -119,18 +118,21 @@ func Extract(url, extension string, ignoreDirs []string) []Element {
 
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		log.Fatalf("getting %s by HTML: %v", url, err)
+		log.Fatalf("getting %s by HTML: %v", url, res.Status)
 	}
 
 	doc, err := html.Parse(res.Body)
 	if err != nil {
-		log.Fatalf("analise %s by HTML: %v", url, err)
+		log.Fatalf("analise %s by HTML: %v", url, err.Error())
 	}
 
 	files := make([]Element, 0)
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
-			files = append(files, CheckLink(n, extension, ignoreDirs))
+			link := CheckLink(n, extension, ignoreDirs)
+			if link != nil {
+				files = append(files, link)
+			}
 		}
 	}
 
@@ -201,13 +203,6 @@ func PrintResults(out io.Writer, results []MDFile) {
 }
 
 func GetMarkdown(url, extension, toIgnore string) {
-	err := checks.CheckInputData(url, extension)
-	if err != nil {
-		fmt.Printf("error. %s. \n" +
-			"use -help flag to get using template.\n", err.Error())
-		return
-	}
-
 	var ignoreDirs = strings.Split(toIgnore, " ")
 	md := Crawl(url, extension, ignoreDirs)
 
