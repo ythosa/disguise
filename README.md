@@ -1,5 +1,7 @@
 # disguise
 
+[![CodeFactor](https://www.codefactor.io/repository/github/ythosa/disguise/badge)](https://www.codefactor.io/repository/github/ythosa/disguise)
+
 Disguise is CLI tool for generation markdown  with list of github repository directories and files. Can be used for creation repositories issues about the process of documenting the code.
 
 Usage example:
