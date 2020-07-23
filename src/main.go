@@ -34,7 +34,21 @@ func (d *MDDir) GetMarkDown() string {
 	return fmt.Sprintf("* ###[%s](%s)\n", d.name, d.href)
 }
 
-func CheckLink(n *html.Node, extension string) Element {
+func IsContains(elements []string, pattern string) bool {
+	for _, e := range elements {
+		match, err := regexp.Match(pattern, []byte(e))
+		if err != nil {
+			log.Fatal(err)
+		}
+		if match {
+			return true
+		}
+	}
+
+	return false
+}
+
+func CheckLink(n *html.Node, extension string, ignoreDirs []string) Element {
 	var hasRightStyles = false
 	var isTrackedFile  = false
 	var isDir          = false
@@ -72,6 +86,10 @@ func CheckLink(n *html.Node, extension string) Element {
 		}
 	}
 
+	if IsContains(ignoreDirs, dirname) {
+		return nil
+	}
+
 	if hasRightStyles && isTrackedFile {
 		return MDFile{
 			href:    fhref,
@@ -93,7 +111,7 @@ func CheckLink(n *html.Node, extension string) Element {
 	return nil
 }
 
-func Extract(url, extension string) []Element {
+func Extract(url, extension string, ignoreDirs []string) []Element {
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
@@ -112,7 +130,7 @@ func Extract(url, extension string) []Element {
 	files := make([]Element, 0)
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
-			files = append(files, CheckLink(n, extension))
+			files = append(files, CheckLink(n, extension, ignoreDirs))
 		}
 	}
 
@@ -136,13 +154,13 @@ func GroupByDir(files []MDFile) map[MDDir][]MDFile {
 	return grouped
 }
 
-func Crawl(url, extension string) []MDFile {
+func Crawl(url, extension string, ignoreDirs []string) []MDFile {
 	worklist := make(chan []Element)
 	results := make([]MDFile, 0)
 
 	// Start with cmd arguments
 	go func() {
-		worklist <- Extract(url, extension)
+		worklist <- Extract(url, extension, ignoreDirs)
 	}()
 
 	for n := 1; n > 0; n-- {
@@ -152,7 +170,7 @@ func Crawl(url, extension string) []MDFile {
 			case MDDir:
 				n++
 				go func() {
-					worklist <- Extract(v.href, extension)
+					worklist <- Extract(v.href, extension, ignoreDirs)
 				}()
 			case MDFile:
 				results = append(results, v)
@@ -182,23 +200,55 @@ func PrintResults(out io.Writer, results []MDFile) {
 	}
 }
 
+var url = flag.String("url", "", "Which repository should have documentation.")
+var extension = flag.String("ext", "", "Which files should have documentation")
 var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
+
+func CheckRepositoryURL(url string) (bool, error) {
+	match, err := regexp.Match(`^https:\/\/github.com/.*$`, []byte(url))
+	if err != nil {
+		return false, err
+	}
+	return match, nil
+}
+
+func CheckExtension(ext string) (bool, error) {
+	match, err := regexp.Match(`^\.\S*$`, []byte(ext))
+	if err != nil {
+		return false, err
+	}
+	return match, nil
+}
+
+func CheckInputData(url, ext string) (bool, error) {
+	isURL, err := CheckRepositoryURL(url)
+	if err != nil {
+		return false, err
+	}
+
+	isExt, err := CheckExtension(ext)
+	if err != nil {
+		return false, err
+	}
+
+	return isURL && isExt, nil
+}
 
 func main() {
 	flag.Parse()
 
-	var url       string
-	var extension string
-	if len(os.Args) == 2 {
-		url = os.Args[1]
-		extension = os.Args[2]
-	} else {
-		panic("Error. Enter correct data for CLI! Look like <./cli_path> <repository_name> <files_extension>")
+	correct, err := CheckInputData(*url, *extension)
+	if err != nil {
+		panic(err)
+	}
+	if !correct {
+		panic("Error. Enter correct data for CLI look like \"<./cli_path>\" [options] \"<repository_name>\" \"<files_extension>\".")
 	}
 
-	md := Crawl(url, extension)
+	var ignoreDirs = strings.Split(*toIgnore, " ")
+	md := Crawl(*url, *extension, ignoreDirs)
 
-	fname := strings.Split(url, "/")[len(strings.Split(url, "/")) - 1]
+	fname := strings.Split(*url, "/")[len(strings.Split(*url, "/")) - 1]
 	f, err := os.Create(fmt.Sprintf("%s.md", fname))
 	if err != nil {
 		panic(err)
