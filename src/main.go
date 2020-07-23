@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -14,17 +15,18 @@ import (
 
 type Element interface {}
 
-type FileHref struct {
-	href string
-	name string
-	dir string
+type MDFile struct {
+	href    string
+	name    string
+	dirname string
+	MDDir
 }
 
-type DirHref struct {
+type MDDir struct {
 	href string
 }
 
-func (f *FileHref) GetMarkDown() string {
+func (f *MDFile) GetMarkDown() string {
 	return fmt.Sprintf("- [ ] [%s](%s) \n", f.name, f.href)
 }
 
@@ -44,7 +46,8 @@ func CheckLink(n *html.Node, extension string) Element {
 		switch a.Key {
 		case "href":
 			href = "https://github.com" + a.Val
-			fname = strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
+			//fname = strings.Split(href, "/")[len(strings.Split(href, "/")) - 1]
+			fname = n.FirstChild.Data
 
 			if matchDir.Match([]byte(href)) {
 				isDir = true
@@ -61,15 +64,15 @@ func CheckLink(n *html.Node, extension string) Element {
 	}
 
 	if hasRightStyles && isTrackedFile {
-		return FileHref{
-			href: href,
-			name: fname[:len(fname)-len(extension)],
-			dir:  dirname,
+		return MDFile{
+			href:    href,
+			name:    fname[:len(fname)-len(extension)],
+			dirname: dirname,
 		}
 	}
 
 	if hasRightStyles && isDir {
-		return DirHref {
+		return MDDir{
 			href: href,
 		}
 	}
@@ -111,18 +114,18 @@ func ForEachNode(n *html.Node, f func(n *html.Node)) {
 	}
 }
 
-func GroupByDir(files []FileHref) map[string][]FileHref {
-	grouped := make(map[string][]FileHref)
+func GroupByDir(files []MDFile) map[string][]MDFile {
+	grouped := make(map[string][]MDFile)
 	for _, f := range files {
-		grouped[f.dir] = append(grouped[f.dir], f)
+		grouped[f.dirname] = append(grouped[f.dirname], f)
 	}
 
 	return grouped
 }
 
-func Crawl(url, extension string) []FileHref {
+func Crawl(url, extension string) []MDFile {
 	worklist := make(chan []Element)
-	results := make([]FileHref, 0)
+	results := make([]MDFile, 0)
 
 	// Start with cmd arguments
 	go func() {
@@ -133,12 +136,12 @@ func Crawl(url, extension string) []FileHref {
 		list := <-worklist
 		for _, f := range list {
 			switch v := f.(type) {
-			case DirHref:
+			case MDDir:
 				n++
 				go func() {
 					worklist <- Extract(v.href, extension)
 				}()
-			case FileHref:
+			case MDFile:
 				results = append(results, v)
 			}
 		}
@@ -147,7 +150,7 @@ func Crawl(url, extension string) []FileHref {
 	return results
 }
 
-func PrintResults(out io.Writer, results []FileHref) {
+func PrintResults(out io.Writer, results []MDFile) {
 	for dir, files := range GroupByDir(results) {
 		_, err := fmt.Fprintf(out, "* ### %s\n", dir)
 		if err != nil {
@@ -166,16 +169,21 @@ func PrintResults(out io.Writer, results []FileHref) {
 	}
 }
 
+var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
+
 func main() {
+	//flag.Parse()
+	//fmt.Println(*toIgnore)
+
 	url := os.Args[1]
 	extension := os.Args[2]
 
 	md := Crawl(url, extension)
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/")) - 1]
-	f, err := os.Create(fmt.Sprintf("%s.txt", fname))
+	f, err := os.Create(fmt.Sprintf("%s.md", fname))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	PrintResults(f, md)
