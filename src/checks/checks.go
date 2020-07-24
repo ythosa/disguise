@@ -1,23 +1,22 @@
 package checks
 
-import (
-	"fmt"
-	"regexp"
-)
+import "regexp"
 
 func CheckRepositoryURL(url string) error {
-	match, _ := regexp.MatchString(`^https:\/\/github.com/.*$`, url)
+	match, _ := regexp.MatchString(`^https://github.com/.*$`, url)
 	if !match {
-		return fmt.Errorf("invalid input repository URL")
+		return InvalidInputError{"repository URL"}
 	}
+
 	return nil
 }
 
 func CheckExtension(ext string) error {
 	match, _ := regexp.MatchString(`^\.\S*$`, ext)
 	if !match {
-		return fmt.Errorf("invalid input file extension")
+		return InvalidInputError{"file extension"}
 	}
+
 	return nil
 }
 
