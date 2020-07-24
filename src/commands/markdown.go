@@ -13,45 +13,45 @@ import (
 	"golang.org/x/net/html"
 )
 
-// element is the interface of the element that is added to markdown
+// element is the interface of the element that is added to markdown.
 type element interface {
 	getMarkDown() string
 }
 
-// mdFile is the type of file that is added to markdown
+// mdFile is the type of file that is added to markdown.
 type mdFile struct {
 	href string // the file href
-	name string	// the file name
-	dir  mdDir	// the directory where the file is located
+	name string // the file name
+	dir  mdDir  // the directory where the file is located
 }
 
-// mdFile is the type of dir that is added to markdown
+// mdFile is the type of dir that is added to markdown.
 type mdDir struct {
 	name string // the directory name
-	href string	// the directory href
+	href string // the directory href
 }
 
-// getMarkDown of mdFile returns markdown specify for files
+// getMarkDown of mdFile returns markdown specify for files.
 func (f mdFile) getMarkDown() string {
 	return fmt.Sprintf("- [ ] [%s](%s)\n", f.name, f.href)
 }
 
-// getMarkDown of mdDir returns markdown specify for directories
+// getMarkDown of mdDir returns markdown specify for directories.
 func (d mdDir) getMarkDown() string {
 	return fmt.Sprintf("* ###[%s](%s)\n", d.name, d.href)
 }
 
-// isContains checks whether an item is in a list or in a list item
+// isContains checks whether an item is in a list or in a list item.
 func isContains(elements []string, pattern string) bool {
 	if len(elements) == 0 {
 		return false
 	}
-	for _, e := range elements{
+	for _, e := range elements {
 		match, err := regexp.MatchString(e, pattern)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if match{
+		if match {
 			return true
 		}
 	}
@@ -60,7 +60,7 @@ func isContains(elements []string, pattern string) bool {
 }
 
 // parseHrefAttr get href and file extension and
-// returns is this item mdFile or mdDir and dirname
+// returns is this item mdFile or mdDir and dirname.
 func parseHrefAttr(href, extension string) (bool, bool, string) {
 	var isDir = false
 	var isTrackedFile = false
@@ -70,10 +70,10 @@ func parseHrefAttr(href, extension string) (bool, bool, string) {
 	matchDir := regexp.MustCompile(`.+/tree/.+`)
 
 	pathArray := strings.Split(href, "/")
-	if matchDir.Match([]byte(href)){
+	if matchDir.Match([]byte(href)) {
 		isDir = true
 		dirname = strings.Join(pathArray[6:len(pathArray)-1], "/")
-	} else if matchFile.Match([]byte(href)){
+	} else if matchFile.Match([]byte(href)) {
 		isTrackedFile = true
 		dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
 	}
@@ -81,16 +81,16 @@ func parseHrefAttr(href, extension string) (bool, bool, string) {
 	return isDir, isTrackedFile, dirname
 }
 
-// checkLink get html node and generate element of type element
+// checkLink get html node and generate element of type element.
 func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 	hasRightStyles := false
 	isTrackedFile := false
 	isDir := false
 
-	var href    string
-	var fname   string
-	var dirname	string
-	var dirhref	string
+	var href string
+	var fname string
+	var dirname string
+	var dirhref string
 
 	for _, a := range n.Attr {
 		switch a.Key {
@@ -105,18 +105,18 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 		}
 	}
 
-	if !hasRightStyles{
+	if !hasRightStyles {
 		return nil
-	}	
+	}
 
-	if isContains(ignoreDirs, dirname){
+	if isContains(ignoreDirs, dirname) {
 		return nil
 	}
 
 	if isTrackedFile {
 		return mdFile{
-			href:    href,
-			name:    fname[:len(fname)-len(extension)],
+			href: href,
+			name: fname[:len(fname)-len(extension)],
 			dir: mdDir{
 				href: dirhref,
 				name: dirname,
@@ -134,15 +134,15 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 	return nil
 }
 
-// extract extracts all directories and files from this link
+// extract extracts all directories and files from this link.
 func extract(folderURL, extension string, ignoreDirs []string) []element {
-	res, err := http.Get(folderURL)
+	res, err := http.Get(folderURL) //nolint:gosec
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK{
+	if res.StatusCode != http.StatusOK {
 		log.Fatalf("getting %s by HTML: %v", folderURL, res.Status)
 	}
 
@@ -163,19 +163,18 @@ func extract(folderURL, extension string, ignoreDirs []string) []element {
 
 	forEachNode(doc, visitNode)
 
-
 	return files
 }
 
-// forEachNode recursively traverses the entire element tree of html node
+// forEachNode recursively traverses the entire element tree of html node.
 func forEachNode(n *html.Node, f func(n *html.Node)) {
 	f(n)
-	for c := n.FirstChild; c != nil; c = c.NextSibling{
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		forEachNode(c, f)
 	}
 }
 
-// groupByDir groups input array to map where key is directory name
+// groupByDir groups input array to map where key is directory name.
 func groupByDir(files []mdFile) map[mdDir][]mdFile {
 	grouped := make(map[mdDir][]mdFile)
 	for _, f := range files {
@@ -185,7 +184,7 @@ func groupByDir(files []mdFile) map[mdDir][]mdFile {
 	return grouped
 }
 
-// crawl finds all mdFile's from passed URL and returns them
+// crawl finds all mdFile's from passed URL and returns them.
 func crawl(url, extension string, ignoreDirs []string) []mdFile {
 	worklist := make(chan []element)
 	results := make([]mdFile, 0)
@@ -201,7 +200,7 @@ func crawl(url, extension string, ignoreDirs []string) []mdFile {
 			switch v := f.(type) {
 			case mdDir:
 				n++
-				go func() {worklist <- extract(v.href, extension, ignoreDirs)}()
+				go func() { worklist <- extract(v.href, extension, ignoreDirs) }()
 			case mdFile:
 				results = append(results, v)
 			}
@@ -211,46 +210,46 @@ func crawl(url, extension string, ignoreDirs []string) []mdFile {
 	return results
 }
 
-// printResult prints markdown of passed results elements into some out
+// printResult prints markdown of passed results elements into some out.
 func printResults(out io.Writer, results []mdFile) {
-	for dir, files := range groupByDir(results){
+	for dir, files := range groupByDir(results) {
 		_, err := fmt.Fprint(out, dir.getMarkDown())
-		if err != nil{
+		if err != nil {
 			log.Fatal(err)
 		}
-		for _, f := range files{
+		for _, f := range files {
 			_, printErr := fmt.Fprint(out, f.getMarkDown())
-			if printErr != nil{
+			if printErr != nil {
 				log.Fatal(printErr)
 			}
 		}
 
 		_, err = fmt.Fprint(out, "\n")
 
-		if err != nil{
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 }
 
-// getIgnoreDirs returns dirs which should be ignored
+// getIgnoreDirs returns dirs which should be ignored.
 func getIgnoreDirs(toIgnore string) []string {
-	var ignoreDirs	= strings.Split(toIgnore, " ")
-	if ignoreDirs[0] == ""{
+	var ignoreDirs = strings.Split(toIgnore, " ")
+	if ignoreDirs[0] == "" {
 		return make([]string, 0)
 	}
 
 	return ignoreDirs
 }
 
-// GetMarkdown is CLI command which prints into file generated markdown for this repository
+// GetMarkdown is CLI command which prints into file generated markdown for this repository.
 func GetMarkdown(url, extension, toIgnore string) {
 	md := crawl(url, extension, getIgnoreDirs(toIgnore))
 
-	fname := strings.Split(url, "/")[len(strings.Split(url, "/")) - 1]
+	fname := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
 
 	f, err := os.Create(fmt.Sprintf("./results/%s.md", fname))
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 

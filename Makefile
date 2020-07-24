@@ -6,4 +6,8 @@ build:
 run:
 	go run ./src/main.go
 
+.PHONY: lint
+lint:
+	golangci-lint run
+
 .DEFAULT_GOAL := build

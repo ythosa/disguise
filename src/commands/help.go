@@ -3,7 +3,7 @@ package commands
 
 import "fmt"
 
-// GetHelp returns help for help CLI command
+// GetHelp returns help for help CLI command.
 func GetHelp() {
 	fmt.Println(`			~ Welcome to the disguise club buddy. ~
 Disguise is CLI tool for generation markdown  with list of github repository directories and files.
