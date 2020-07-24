@@ -20,15 +20,15 @@ type element interface {
 
 // mdFile is the type of file that is added to markdown
 type mdFile struct {
-	href string
-	name string
-	dir  mdDir
+	href string // the file href
+	name string	// the file name
+	dir  mdDir	// the directory where the file is located
 }
 
 // mdFile is the type of dir that is added to markdown
 type mdDir struct {
-	name string
-	href string
+	name string // the directory name
+	href string	// the directory href
 }
 
 // getMarkDown of mdFile returns markdown specify for files
@@ -219,9 +219,9 @@ func printResults(out io.Writer, results []mdFile) {
 			log.Fatal(err)
 		}
 		for _, f := range files{
-			_, err := fmt.Fprint(out, f.getMarkDown())
-			if err != nil{
-				log.Fatal(err)
+			_, printErr := fmt.Fprint(out, f.getMarkDown())
+			if printErr != nil{
+				log.Fatal(printErr)
 			}
 		}
 

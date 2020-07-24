@@ -1,7 +1,9 @@
+// Package commands provides functions for CLI commands
 package commands
 
 import "fmt"
 
+// GetHelp returns help for help CLI command
 func GetHelp() {
 	fmt.Println("\t~ Welcome to the disguise club buddy. ~\n" +
 		"Disguise is CLI tool for generation markdown  with list of github repository directories and files." +

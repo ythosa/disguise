@@ -2,31 +2,34 @@ package checks
 
 import "regexp"
 
-func CheckRepositoryURL(url string) error {
+// checkRepositoryURL checks for correctness repository url
+func checkRepositoryURL(url string) error {
 	match, _ := regexp.MatchString(`^https://github.com/.*$`, url)
 	if !match {
-		return InvalidInputError{"repository URL"}
+		return invalidInputError{"repository URL"}
 	}
 
 	return nil
 }
 
-func CheckExtension(ext string) error {
+// checkExtension checks for correctness files extension
+func checkExtension(ext string) error {
 	match, _ := regexp.MatchString(`^\.\S*$`, ext)
 	if !match {
-		return InvalidInputError{"file extension"}
+		return invalidInputError{"file extension"}
 	}
 
 	return nil
 }
 
+// CheckInputData checks for correctness all passed arguments
 func CheckInputData(url, ext string) error {
-	err := CheckRepositoryURL(url)
+	err := checkRepositoryURL(url)
 	if err != nil {
 		return err
 	}
 
-	err = CheckExtension(ext)
+	err = checkExtension(ext)
 	if err != nil {
 		return err
 	}

@@ -2,10 +2,12 @@ package checks
 
 import "fmt"
 
-type InvalidInputError struct {
+// invalidInputError is error type if passed argument is invalid
+type invalidInputError struct {
 	Name string
 }
 
-func (e InvalidInputError) Error() string {
+// Error returns formatted InvalidInputErr
+func (e invalidInputError) Error() string {
 	return fmt.Sprintf("invalid input: %s", e.Name)
 }

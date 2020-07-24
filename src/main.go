@@ -12,7 +12,8 @@ var url = flag.String("url", "", "Which repository should have documentation.")
 var extension = flag.String("ext", "", "Which files should have documentation")
 var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
 
-/* Example of starting program
+/*
+Example of starting program:
 	<./cli_path> [options] -url "<repository_name>" -ext "<files_extension>"
 	./disguise -ignore "Platform.Setters.Tests" -url https://github.com/linksplatform/Setters/ --ext ".cs"
 	./disguise -help
