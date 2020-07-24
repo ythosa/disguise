@@ -1,3 +1,4 @@
+// Package checks provides functions check passed into CLI arguments
 package checks
 
 import "fmt"
