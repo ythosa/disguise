@@ -41,8 +41,8 @@ func (d mdDir) getMarkDown() string {
 	return fmt.Sprintf("* ###[%s](%s)\n", d.name, d.href)
 }
 
-// isContains checks whether an item is in a list or in a list item.
-func isContains(elements []string, pattern string) bool {
+// IsContains checks whether an item is in a list or in a list item.
+func IsContains(elements []string, pattern string) bool {
 	if len(elements) == 0 {
 		return false
 	}
@@ -109,7 +109,7 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 		return nil
 	}
 
-	if isContains(ignoreDirs, dirname) {
+	if IsContains(ignoreDirs, dirname) {
 		return nil
 	}
 

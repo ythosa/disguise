@@ -10,4 +10,8 @@ run:
 lint:
 	golangci-lint run
 
+.PHONY: test
+test:
+	go test -v ./src/...
+
 .DEFAULT_GOAL := build
