@@ -250,27 +250,23 @@ func printResults(out io.Writer, results []mdFile) {
 	}
 }
 
-// getIgnoreDirs returns dirs which should be ignored.
-func getIgnoreDirs(toIgnore string) []string {
+// GetIgnoreDirs returns dirs which should be ignored.
+func GetIgnoreDirs(toIgnore string) []string {
 	var ignoreDirs = strings.Split(toIgnore, " ")
 	if ignoreDirs[0] == "" {
 		return make([]string, 0)
 	}
 
-	// todo
-	//output := make([]string, 0)
-	//for _, d := range ignoreDirs {
-	//	if []byte(d)[0] == '/' {
-	//		strings.
-	//	}
-	//}
+	for i, d := range ignoreDirs {
+		ignoreDirs[i] = strings.TrimPrefix(strings.TrimSuffix(d, "/"), "/")
+	}
 
 	return ignoreDirs
 }
 
 // GetMarkdown is CLI command which prints into file generated markdown for this repository.
 func GetMarkdown(url, extension, toIgnore string) {
-	md := crawl(url, extension, getIgnoreDirs(toIgnore))
+	md := crawl(url, extension, GetIgnoreDirs(toIgnore))
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
 

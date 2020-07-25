@@ -184,3 +184,40 @@ func TestGetDirHref(t *testing.T) {
 		}
 	}
 }
+
+func TestGetIgnoreDirs(t *testing.T) {
+	testCases := []struct {
+		input string
+		want []string
+	}{
+		{
+			input: "src/test",
+			want: []string{"src/test"},
+		},
+		{
+			input: "src/test/",
+			want: []string{"src/test"},
+		},
+		{
+			input: "/src/test",
+			want: []string{"src/test"},
+		},
+		{
+			input: "/src/test/",
+			want: []string{"src/test"},
+		},
+		{
+			input: "src/test /benchmarks",
+			want: []string{"src/test", "benchmarks"},
+		},
+	}
+
+	for _, tc := range testCases {
+		got := commands.GetIgnoreDirs(tc.input)
+		for i := 0; i < len(got); i++ {
+			if tc.want[i] != got[i] {
+				t.Errorf("GetIgnoreDirs(%q) = %v", tc.input, got)
+			}
+		}
+	}
+}
