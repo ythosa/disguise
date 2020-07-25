@@ -13,9 +13,15 @@ import (
 	"golang.org/x/net/html"
 )
 
+// MarkDownConfig is type which defines markdown output struct.
+type MarkDownConfig struct {
+	Files string
+	Dirs string
+}
+
 // element is the interface of the element that is added to markdown.
 type element interface {
-	getMarkDown() string
+	getMarkDown(string) string
 }
 
 // mdFile is the type of file that is added to markdown.
@@ -32,13 +38,13 @@ type mdDir struct {
 }
 
 // getMarkDown of mdFile returns markdown specify for files.
-func (f mdFile) getMarkDown() string {
-	return fmt.Sprintf("- [ ] [%s](%s)\n", f.name, f.href)
+func (f mdFile) getMarkDown(prefix string) string {
+	return fmt.Sprintf("%s [%s](%s)\n", prefix, f.name, f.href)
 }
 
 // getMarkDown of mdDir returns markdown specify for directories.
-func (d mdDir) getMarkDown() string {
-	return fmt.Sprintf("##### [%s](%s)\n", d.name, d.href)
+func (d mdDir) getMarkDown(prefix string) string {
+	return fmt.Sprintf("%s [%s](%s)\n", prefix, d.name, d.href)
 }
 
 // IsContains checks whether an item is in a list or in a list item.
@@ -229,14 +235,14 @@ func crawl(url, extension string, ignoreDirs []string) []mdFile {
 }
 
 // printResult prints markdown of passed results elements into some out.
-func printResults(out io.Writer, results []mdFile) {
+func printResults(out io.Writer, results []mdFile, cfg MarkDownConfig) {
 	for dir, files := range groupByDir(results) {
-		_, err := fmt.Fprint(out, dir.getMarkDown())
+		_, err := fmt.Fprint(out, dir.getMarkDown(cfg.Dirs))
 		if err != nil {
 			log.Fatal(err)
 		}
 		for _, f := range files {
-			_, printErr := fmt.Fprint(out, f.getMarkDown())
+			_, printErr := fmt.Fprint(out, f.getMarkDown(cfg.Files))
 			if printErr != nil {
 				log.Fatal(printErr)
 			}
@@ -265,7 +271,7 @@ func GetIgnoreDirs(toIgnore string) []string {
 }
 
 // GetMarkdown is CLI command which prints into file generated markdown for this repository.
-func GetMarkdown(url, extension, toIgnore string) {
+func GetMarkdown(url, extension, toIgnore string, cfg MarkDownConfig) {
 	md := crawl(url, extension, GetIgnoreDirs(toIgnore))
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
@@ -283,5 +289,5 @@ func GetMarkdown(url, extension, toIgnore string) {
 		panic(err)
 	}
 
-	printResults(f, md)
+	printResults(f, md, cfg)
 }

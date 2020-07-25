@@ -23,14 +23,42 @@ func checkExtension(ext string) error {
 	return nil
 }
 
+// checkExtension checks for correctness folder markdown prefix.
+func checkFolderPrefix(folderPrefix string) error {
+	if len(folderPrefix) == 0 {
+		return invalidInputError{"folder-prefix"}
+	}
+
+	return nil
+}
+
+// checkExtension checks for correctness file markdown prefix.
+func checkFilePrefix(folderPrefix string) error {
+	if len(folderPrefix) == 0 {
+		return invalidInputError{"file-prefix"}
+	}
+
+	return nil
+}
+
 // CheckInputData checks for correctness all passed arguments.
-func CheckInputData(url, ext string) error {
+func CheckInputData(url, ext, folderPrefix, filePrefix string) error {
 	err := checkRepositoryURL(url)
 	if err != nil {
 		return err
 	}
 
 	err = checkExtension(ext)
+	if err != nil {
+		return err
+	}
+
+	err = checkFolderPrefix(ext)
+	if err != nil {
+		return err
+	}
+
+	err = checkFilePrefix(ext)
 	if err != nil {
 		return err
 	}

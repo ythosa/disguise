@@ -19,6 +19,8 @@ func main() {
 	var url = flag.String("url", "", "Which repository should have documentation.")
 	var extension = flag.String("ext", "", "Which files should have documentation")
 	var toIgnore = flag.String("ignore", "", "Which dirs shouldn't have documentation.")
+	var folderPrefix = flag.String("folder-prefix", "#####", "Folder prefix in markdown.")
+	var filePrefix = flag.String("file-prefix", "- [ ]", "File prefix in markdown.")
 
 	flag.Parse()
 
@@ -28,13 +30,17 @@ func main() {
 	}
 
 	if (len(*url) != 0) || (len(*extension) != 0) {
-		err := checks.CheckInputData(*url, *extension)
+		err := checks.CheckInputData(*url, *extension, *folderPrefix, *filePrefix)
 		if err != nil {
 			fmt.Printf("error. %s. \n"+
 				"use -help flag to get using template.\n", err.Error())
 			return
 		}
-		commands.GetMarkdown(*url, *extension, *toIgnore)
+		commands.GetMarkdown(*url, *extension, *toIgnore,
+			commands.MarkDownConfig{
+				Files: *filePrefix,
+				Dirs:  *folderPrefix,
+			})
 		return
 	}
 
