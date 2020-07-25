@@ -14,4 +14,8 @@ lint:
 test:
 	go test -v ./src/...
 
+.PHONY: pipeline
+pipeline:
+	make lint && make test && make
+
 .DEFAULT_GOAL := build
