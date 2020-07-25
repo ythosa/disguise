@@ -38,7 +38,7 @@ func (f mdFile) getMarkDown() string {
 
 // getMarkDown of mdDir returns markdown specify for directories.
 func (d mdDir) getMarkDown() string {
-	return fmt.Sprintf("* ###[%s](%s)\n", d.name, d.href)
+	return fmt.Sprintf("##### [%s](%s)\n", d.name, d.href)
 }
 
 // IsContains checks whether an item is in a list or in a list item.
@@ -81,6 +81,14 @@ func ParseHrefAttr(href, extension string) (bool, bool, string) {
 	return isDir, isTrackedFile, dirname
 }
 
+// GetDirHref gets href to file and returns link to dir where this file placed
+func GetDirHref(filehref, dirname string) string {
+	path := strings.Split(filehref, "/blob/")
+	dirhref := path[0] + "/tree/" + strings.Split(path[1], "/")[0] + "/" + dirname
+
+	return dirhref
+}
+
 // checkLink get html node and generate element of type element.
 func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 	hasRightStyles := false
@@ -90,14 +98,13 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 	var href string
 	var fname string
 	var dirname string
-	var dirhref string
+	var filedirhref string
 
 	for _, a := range n.Attr {
 		switch a.Key {
 		case "href":
 			href = "https://github.com" + a.Val
 			fname = n.FirstChild.Data
-			isDir, isTrackedFile, dirname = ParseHrefAttr(href, extension)
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
 				hasRightStyles = true
@@ -113,21 +120,24 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 		return nil
 	}
 
-	if isTrackedFile {
-		return mdFile{
-			href: href,
-			name: fname[:len(fname)-len(extension)],
-			dir: mdDir{
-				href: dirhref,
-				name: dirname,
-			},
-		}
-	}
+	isDir, isTrackedFile, dirname = ParseHrefAttr(href, extension)
 
 	if isDir {
 		return mdDir{
 			href: href,
 			name: dirname,
+		}
+	}
+
+	filedirhref = GetDirHref(href, dirname)
+	if isTrackedFile {
+		return mdFile{
+			href: href,
+			name: fname[:len(fname)-len(extension)],
+			dir: mdDir{
+				href: filedirhref,
+				name: dirname,
+			},
 		}
 	}
 
@@ -238,6 +248,14 @@ func getIgnoreDirs(toIgnore string) []string {
 	if ignoreDirs[0] == "" {
 		return make([]string, 0)
 	}
+
+	// todo
+	//output := make([]string, 0)
+	//for _, d := range ignoreDirs {
+	//	if []byte(d)[0] == '/' {
+	//		strings.
+	//	}
+	//}
 
 	return ignoreDirs
 }

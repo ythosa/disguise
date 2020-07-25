@@ -130,7 +130,7 @@ func TestParseHrefAttr(t *testing.T) {
 				isTrackedFile: true,
 				dirname:       "src/configs",
 			},
-		},{
+		}, {
 			input: inputT{
 				href:      "https://github.com/Ythosa/where-is/blob/master/package.json",
 				extension: ".js",
@@ -146,8 +146,7 @@ func TestParseHrefAttr(t *testing.T) {
 	for _, tc := range testCases {
 		if isDir, isTrackedFile, dirname := commands.ParseHrefAttr(tc.input.href, tc.input.extension);
 			isDir != tc.want.isDir || isTrackedFile != tc.want.isTrackedFile || dirname != tc.want.dirname {
-			t.Errorf("IsContains(%q) = %v, %v, %v", tc.input, isDir, isTrackedFile, dirname)
-			//fmt.Println(isDir, isTrackedFile, dirname)
+			t.Errorf("ParseHrefAttr(%q %q) = %v, %v, %v", tc.input.href, tc.input.extension, isDir, isTrackedFile, dirname)
 		}
 	}
 }
