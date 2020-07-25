@@ -21,6 +21,7 @@ vendor/
 *.txt
 *.md
 results/
+disguise_results/
 
 # Binaries
 disguise

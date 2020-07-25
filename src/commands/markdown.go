@@ -274,7 +274,15 @@ func GetMarkdown(url, extension, toIgnore string) {
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
 
-	f, err := os.Create(fmt.Sprintf("./results/%s.md", fname))
+	resultsFolderPath := "./disguise_results"
+	if _, err := os.Stat(resultsFolderPath); os.IsNotExist(err) {
+		err = os.Mkdir(resultsFolderPath, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	f, err := os.Create(fmt.Sprintf("%s/%s.md", resultsFolderPath, fname))
 	if err != nil {
 		panic(err)
 	}
