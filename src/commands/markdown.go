@@ -78,15 +78,23 @@ func ParseHrefAttr(href, extension string) (bool, bool, string) {
 		dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
 	}
 
+	if len(dirname) == 0 && (isDir || isTrackedFile) {
+		dirname = "/"
+	}
+
 	return isDir, isTrackedFile, dirname
 }
 
-// GetDirHref gets href to file and returns link to dir where this file placed
+// GetDirHref gets href to file and returns link to dir where this file placed.
 func GetDirHref(filehref, dirname string) string {
 	path := strings.Split(filehref, "/blob/")
-	dirhref := path[0] + "/tree/" + strings.Split(path[1], "/")[0] + "/" + dirname
+	dirhref := path[0] + "/tree/" + strings.Split(path[1], "/")[0]
 
-	return dirhref
+	if dirname == "/" {
+		return dirhref
+	}
+
+	return dirhref + "/" + dirname
 }
 
 // checkLink get html node and generate element of type element.

@@ -133,12 +133,12 @@ func TestParseHrefAttr(t *testing.T) {
 		}, {
 			input: inputT{
 				href:      "https://github.com/Ythosa/where-is/blob/master/package.json",
-				extension: ".js",
+				extension: ".json",
 			},
 			want: outputT{
 				isDir:         false,
-				isTrackedFile: false,
-				dirname:       "",
+				isTrackedFile: true,
+				dirname:       "/",
 			},
 		},
 	}
@@ -146,7 +146,41 @@ func TestParseHrefAttr(t *testing.T) {
 	for _, tc := range testCases {
 		if isDir, isTrackedFile, dirname := commands.ParseHrefAttr(tc.input.href, tc.input.extension);
 			isDir != tc.want.isDir || isTrackedFile != tc.want.isTrackedFile || dirname != tc.want.dirname {
-			t.Errorf("ParseHrefAttr(%q %q) = %v, %v, %v", tc.input.href, tc.input.extension, isDir, isTrackedFile, dirname)
+			t.Errorf("ParseHrefAttr(%q, %q) = %v, %v, %v", tc.input.href, tc.input.extension,
+				isDir, isTrackedFile, dirname)
+		}
+	}
+}
+
+func TestGetDirHref(t *testing.T) {
+	type inputT struct {
+		filehref string
+		dirname string
+	}
+
+	testCases := []struct{
+		input inputT
+		want string
+	}{
+		{
+			input: inputT{
+				filehref: "https://github.com/Ythosa/where-is/blob/master/src/libs/printer.js",
+				dirname: "src/libs",
+			},
+			want: "https://github.com/Ythosa/where-is/tree/master/src/libs",
+		},
+		{
+			input: inputT{
+				filehref: "https://github.com/Ythosa/where-is/blob/master/package.json",
+				dirname: "/",
+			},
+			want: "https://github.com/Ythosa/where-is/tree/master",
+		},
+	}
+
+	for _, tc := range testCases {
+		if got := commands.GetDirHref(tc.input.filehref, tc.input.dirname); got != tc.want {
+			t.Errorf("GetDirHref(%q, %q) = %v", tc.input.filehref, tc.input.dirname, got)
 		}
 	}
 }
