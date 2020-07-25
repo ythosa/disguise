@@ -42,12 +42,12 @@ func (d mdDir) getMarkDown() string {
 }
 
 // IsContains checks whether an item is in a list or in a list item.
-func IsContains(elements []string, pattern string) bool {
+func IsContains(elements []string, some string) bool {
 	if len(elements) == 0 {
 		return false
 	}
 	for _, e := range elements {
-		match, err := regexp.MatchString(e, pattern)
+		match, err := regexp.MatchString(e, some)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,9 +59,9 @@ func IsContains(elements []string, pattern string) bool {
 	return false
 }
 
-// parseHrefAttr get href and file extension and
+// ParseHrefAttr get href and file extension and
 // returns is this item mdFile or mdDir and dirname.
-func parseHrefAttr(href, extension string) (bool, bool, string) {
+func ParseHrefAttr(href, extension string) (bool, bool, string) {
 	var isDir = false
 	var isTrackedFile = false
 	var dirname string
@@ -72,7 +72,7 @@ func parseHrefAttr(href, extension string) (bool, bool, string) {
 	pathArray := strings.Split(href, "/")
 	if matchDir.Match([]byte(href)) {
 		isDir = true
-		dirname = strings.Join(pathArray[6:len(pathArray)-1], "/")
+		dirname = strings.Join(pathArray[7:], "/")
 	} else if matchFile.Match([]byte(href)) {
 		isTrackedFile = true
 		dirname = strings.Join(pathArray[7:len(pathArray)-1], "/")
@@ -97,7 +97,7 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 		case "href":
 			href = "https://github.com" + a.Val
 			fname = n.FirstChild.Data
-			isDir, isTrackedFile, dirname = parseHrefAttr(href, extension)
+			isDir, isTrackedFile, dirname = ParseHrefAttr(href, extension)
 		case "class":
 			if a.Val == "js-navigation-open link-gray-dark" {
 				hasRightStyles = true

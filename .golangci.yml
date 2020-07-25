@@ -7,7 +7,6 @@ linters:
   disable:
     - goimports
     - gofmt
-    - gofumpt
     - wsl
 
 linters-settings:
