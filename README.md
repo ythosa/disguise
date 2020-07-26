@@ -6,37 +6,37 @@
 
 ## Install
 #### From sources
-* Clone this repo: `git clone https://github.com/Ythosa/disguise`;
-* Build project by writing in terminal: `make`.
+*   Clone this repo: `git clone https://github.com/Ythosa/disguise`;
+*   Build project by writing in terminal: `make`.
 #### From github tag
-* Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
+*   Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
       
 ## Description
 Disguise is CLI tool for generation markdown with list of github repository directories and files. 
 Can be used for creation repositories issues about the process of documenting the code.
 
 CLI options could be:
-* -url "<github_repo_url>" - identify repositories should have documentation
-* -ext "<file_extension>" - identify files should have documentation
-* -ignore "<some_dir_name_in_repo>" - identify dirs shouldn't have documentation
-* -file-prefix "<some_markdown_syntax>" - specifies the prefix of files in the output markdown (default: - [ ])
-* -folder-prefix "<some_markdown_syntax>" - specifies the prefix of folders in the output markdown (default: #####)
-* -help - returns CLI help and info
+*   -url "<github_repo_url>" - identify repositories should have documentation
+*   -ext "<file_extension>" - identify files should have documentation
+*   -ignore "<some_dir_name_in_repo>" - identify dirs shouldn't have documentation
+*   -file-prefix "<some_markdown_syntax>" - specifies the prefix of files in the output markdown (default: - [ ])
+*   -folder-prefix "<some_markdown_syntax>" - specifies the prefix of folders in the output markdown (default: #####)
+*   -help - returns CLI help and info
 
 ## Usage example
 Let's create an issue about the process of documenting this project, but I don't want to document the _checks_ folder.
 We just need to write this line in the terminal.
-```
-./disguise -url "https://github.com/ythosa/disguise" -ext ".go -ignore "src/checks"
+```shell script
+./disguise -url "https://github.com/ythosa/disguise" -ext ".go" -ignore "src/checks" -file-prefix "*"
 ```
 Output example:
 ##### [src](https://github.com/Ythosa/disguise/tree/master/src)
-- [ ] [main](https://github.com/Ythosa/disguise/blob/master/src/main.go)
+*   [main](https://github.com/Ythosa/disguise/blob/master/src/main.go)
 
 ##### [src/commands](https://github.com/Ythosa/disguise/tree/master/src/commands)
-- [ ] [help](https://github.com/Ythosa/disguise/blob/master/src/commands/help.go)
-- [ ] [markdown](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown.go)
-- [ ] [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
+*   [help](https://github.com/Ythosa/disguise/blob/master/src/commands/help.go)
+*   [markdown](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown.go)
+*   [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
 
 ## FAQ
 *Q*: How can I help to develop this project?  
