@@ -16,7 +16,7 @@ import (
 // MarkDownConfig is type which defines markdown output struct.
 type MarkDownConfig struct {
 	Files string
-	Dirs string
+	Dirs  string
 }
 
 // element is the interface of the element that is added to markdown.

@@ -155,24 +155,24 @@ func TestParseHrefAttr(t *testing.T) {
 func TestGetDirHref(t *testing.T) {
 	type inputT struct {
 		filehref string
-		dirname string
+		dirname  string
 	}
 
-	testCases := []struct{
+	testCases := []struct {
 		input inputT
-		want string
+		want  string
 	}{
 		{
 			input: inputT{
 				filehref: "https://github.com/Ythosa/where-is/blob/master/src/libs/printer.js",
-				dirname: "src/libs",
+				dirname:  "src/libs",
 			},
 			want: "https://github.com/Ythosa/where-is/tree/master/src/libs",
 		},
 		{
 			input: inputT{
 				filehref: "https://github.com/Ythosa/where-is/blob/master/package.json",
-				dirname: "/",
+				dirname:  "/",
 			},
 			want: "https://github.com/Ythosa/where-is/tree/master",
 		},
@@ -188,27 +188,27 @@ func TestGetDirHref(t *testing.T) {
 func TestGetIgnoreDirs(t *testing.T) {
 	testCases := []struct {
 		input string
-		want []string
+		want  []string
 	}{
 		{
 			input: "src/test",
-			want: []string{"src/test"},
+			want:  []string{"src/test"},
 		},
 		{
 			input: "src/test/",
-			want: []string{"src/test"},
+			want:  []string{"src/test"},
 		},
 		{
 			input: "/src/test",
-			want: []string{"src/test"},
+			want:  []string{"src/test"},
 		},
 		{
 			input: "/src/test/",
-			want: []string{"src/test"},
+			want:  []string{"src/test"},
 		},
 		{
 			input: "src/test /benchmarks",
-			want: []string{"src/test", "benchmarks"},
+			want:  []string{"src/test", "benchmarks"},
 		},
 	}
 
