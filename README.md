@@ -1,6 +1,6 @@
 # disguise
 
-![Go](https://github.com/Ythosa/disguise/workflows/Go/badge.svg?branch=master)
+![CI/CD](https://github.com/Ythosa/disguise/workflows/Go/badge.svg?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/db828996dabb4d2a9e00c1fb3263bcd4)](https://app.codacy.com/manual/Ythosa/disguise?utm_source=github.com&utm_medium=referral&utm_content=Ythosa/disguise&utm_campaign=Badge_Grade_Dashboard)
 [![CodeFactor](https://www.codefactor.io/repository/github/ythosa/disguise/badge)](https://www.codefactor.io/repository/github/ythosa/disguise)
 
