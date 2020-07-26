@@ -130,11 +130,10 @@ func checkLink(n *html.Node, extension string, ignoreDirs []string) element {
 		return nil
 	}
 
+	isDir, isTrackedFile, dirname = ParseHrefAttr(href, extension)
 	if IsContains(ignoreDirs, dirname) {
 		return nil
 	}
-
-	isDir, isTrackedFile, dirname = ParseHrefAttr(href, extension)
 
 	if isDir {
 		return mdDir{
@@ -266,7 +265,6 @@ func GetIgnoreDirs(toIgnore string) []string {
 	for i, d := range ignoreDirs {
 		ignoreDirs[i] = strings.TrimPrefix(strings.TrimSuffix(d, "/"), "/")
 	}
-
 	return ignoreDirs
 }
 

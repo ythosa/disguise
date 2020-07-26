@@ -5,10 +5,10 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/ythosa/disguise/badge)](https://www.codefactor.io/repository/github/ythosa/disguise)
 
 ## Install
-### From sources
+#### From sources
 * Clone this repo: `git clone https://github.com/Ythosa/disguise`;
 * Build project by writing in terminal: `make`.
-### From github tag
+#### From github tag
 * Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
       
 ## Description
@@ -24,9 +24,10 @@ CLI options could be:
 * -help - returns CLI help and info
 
 ## Usage example
-Let's generate issue of documentation process of this project. We just need to write this line in the terminal.
+Let's create an issue about the process of documenting this project, but I don't want to document the _checks_ folder.
+We just need to write this line in the terminal.
 ```
-./disguise -url "https://github.com/ythosa/disguise" -ext ".go"
+./disguise -url "https://github.com/ythosa/disguise" -ext ".go -ignore "src/checks"
 ```
 Output example:
 ##### [src](https://github.com/Ythosa/disguise/tree/master/src)
@@ -37,7 +38,12 @@ Output example:
 - [ ] [markdown](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown.go)
 - [ ] [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
 
-##### [src/checks](https://github.com/Ythosa/disguise/tree/master/src/checks)
-- [ ] [checks](https://github.com/Ythosa/disguise/blob/master/src/checks/checks.go)
-- [ ] [errors](https://github.com/Ythosa/disguise/blob/master/src/checks/errors.go)
+## FAQ
+*Q*: How can I help to develop this project?  
+*A*: You can put a :star: :3
 
+<br>
+
+<div align="center">
+  Copyright 2020 Ythosa
+</div>
