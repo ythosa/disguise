@@ -18,10 +18,12 @@ jobs:
         id: go
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.29
       - name: Lint Go Code
-        run: |
-          go get -u golang.org/x/lint/golint 
-          make lint
+        run: make lint
   
   test:
     name: Test
@@ -34,10 +36,6 @@ jobs:
         id: go
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v1
-        with:
-          version: v1.29
       - name: Run Unit tests
         run: make test
   
