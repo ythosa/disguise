@@ -37,7 +37,7 @@ func main() {
 			return
 		}
 		commands.GetMarkdown(*url, *extension, *toIgnore,
-			commands.MarkDownConfig{
+			commands.MarkdownConfig{
 				Files: *filePrefix,
 				Dirs:  *folderPrefix,
 			})

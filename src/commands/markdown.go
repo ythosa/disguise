@@ -13,10 +13,10 @@ import (
 	"golang.org/x/net/html"
 )
 
-// MarkDownConfig is type which defines markdown output struct.
-type MarkDownConfig struct {
-	Files string
-	Dirs  string
+// MarkdownConfig is type which defines markdown output struct.
+type MarkdownConfig struct {
+	Files string // Files prefix in markdown
+	Dirs  string // Directories prefix in markdown
 }
 
 // element is the interface of the element that is added to markdown.
@@ -235,7 +235,7 @@ func crawl(url, extension string, ignoreDirs []string) []mdFile {
 }
 
 // printResult prints markdown of passed results elements into some out.
-func printResults(out io.Writer, results []mdFile, cfg MarkDownConfig) {
+func printResults(out io.Writer, results []mdFile, cfg MarkdownConfig) {
 	for dir, files := range groupByDir(results) {
 		_, err := fmt.Fprint(out, dir.getMarkDown(cfg.Dirs))
 		if err != nil {
@@ -271,7 +271,7 @@ func GetIgnoreDirs(toIgnore string) []string {
 }
 
 // GetMarkdown is CLI command which prints into file generated markdown for this repository.
-func GetMarkdown(url, extension, toIgnore string, cfg MarkDownConfig) {
+func GetMarkdown(url, extension, toIgnore string, cfg MarkdownConfig) {
 	md := crawl(url, extension, GetIgnoreDirs(toIgnore))
 
 	fname := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
