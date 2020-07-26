@@ -30,19 +30,19 @@ CLI options could be:
 *   -help - returns CLI help and info
 
 ## Usage example
-### Let's create an issue about the process of documenting this project, but I don't want to document the _checks_ folder.
+Let's create an issue about the process of documenting this project, but I don't want to document the _checks_ folder.
 We just need to write this line in the terminal.
 ```shell script
-./disguise -url "https://github.com/ythosa/disguise" -ext ".go" -ignore "src/checks" -file-prefix "*"
+./disguise -url "https://github.com/ythosa/disguise" -ext ".go" -ignore "src/checks" -folder-prefix "*" -file-prefix "    *"
 ```
-### Output example:
-##### [src](https://github.com/Ythosa/disguise/tree/master/src)
-*   [main](https://github.com/Ythosa/disguise/blob/master/src/main.go)
+Output example:
+*   [src](https://github.com/Ythosa/disguise/tree/master/src)
+    *   [main](https://github.com/Ythosa/disguise/blob/master/src/main.go)
 
-##### [src/commands](https://github.com/Ythosa/disguise/tree/master/src/commands)
-*   [help](https://github.com/Ythosa/disguise/blob/master/src/commands/help.go)
-*   [markdown](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown.go)
-*   [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
+*   [src/commands](https://github.com/Ythosa/disguise/tree/master/src/commands)
+    *   [help](https://github.com/Ythosa/disguise/blob/master/src/commands/help.go)
+    *   [markdown](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown.go)
+    *   [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
 
 ## FAQ
 *Q*: How can I help to develop this project?  
