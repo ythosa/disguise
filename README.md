@@ -11,11 +11,11 @@
 <br>
 
 ## Install
-### From sources
-*   Clone this repo: `git clone https://github.com/Ythosa/disguise`;
-*   Build project by writing in terminal: `make`.
-### From github tag
-*   Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
+*   From sources:
+    *   Clone this repo: `git clone https://github.com/Ythosa/disguise`;
+    *   Build project by writing in terminal: `make`.
+*   From github tag:
+    *   Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
       
 ## Description
 Disguise is CLI tool for generation markdown with list of github repository directories and files. 
