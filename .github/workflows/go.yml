@@ -23,12 +23,11 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v1.2.1
         with:
-          working-directory: src
+          version: v1.29
 #       - name: Lint Go Code
 #         run: |
 #           go mod vendor
 #           make lint
-  
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -42,7 +41,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Run Unit tests
         run: make test
-  
   build:
     name: Build
     runs-on: ubuntu-latest
