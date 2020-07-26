@@ -14,6 +14,7 @@
 *   From sources:
     *   Clone this repo: `git clone https://github.com/Ythosa/disguise`;
     *   Build project by writing in terminal: `make`.
+
 *   From github tag:
     *   Download the [latest](https://github.com/Ythosa/disguise/releases) binaries of this project.
       
@@ -45,8 +46,8 @@ Output example:
     *   [markdown_test](https://github.com/Ythosa/disguise/blob/master/src/commands/markdown_test.go)
 
 ## FAQ
-*Q*: How can I help to develop this project?  
-*A*: You can put a :star: :3
+_Q_: How can I help to develop this project?  
+_A_: You can put a :star: :3
 
 <br>
 
