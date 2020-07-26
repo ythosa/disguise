@@ -23,7 +23,9 @@ jobs:
         with:
           version: v1.29
       - name: Lint Go Code
-        run: make lint
+        run: |
+          go mod vendor
+          make lint
   
   test:
     name: Test
