@@ -1,6 +1,7 @@
 package checks_test
 
 import (
+	"errors"
 	"github.com/ythosa/disguise/src/checks"
 	"testing"
 )
@@ -25,7 +26,7 @@ func TestCheckFilePrefix(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if got := checks.CheckFilePrefix(tc.input); got != tc.want {
+		if got := checks.CheckFilePrefix(tc.input); !errors.Is(got, tc.want) {
 			t.Errorf("CheckFilePrefix(%q) = %v", tc.input, got)
 		}
 	}
@@ -51,7 +52,7 @@ func TestCheckFolderPrefix(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if got := checks.CheckFolderPrefix(tc.input); got != tc.want {
+		if got := checks.CheckFolderPrefix(tc.input); !errors.Is(got, tc.want) {
 			t.Errorf("CheckFolderPrefix(%q) = %v", tc.input, got)
 		}
 	}
@@ -77,7 +78,7 @@ func TestCheckExtension(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if got := checks.CheckExtension(tc.input); got != tc.want {
+		if got := checks.CheckExtension(tc.input); !errors.Is(got, tc.want) {
 			t.Errorf("CheckExtension(%q) = %v", tc.input, got)
 		}
 	}
@@ -111,7 +112,7 @@ func TestCheckRepositoryURL(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if got := checks.CheckRepositoryURL(tc.input); got != tc.want {
+		if got := checks.CheckRepositoryURL(tc.input); !errors.Is(got, tc.want) {
 			t.Errorf("CheckRepositoryURL(%q) = %v", tc.input, got)
 		}
 	}
