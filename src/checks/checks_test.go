@@ -82,3 +82,37 @@ func TestCheckExtension(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckRepositoryURL(t *testing.T) {
+	testCases := []struct {
+		input string
+		want  error
+	}{
+		{
+			input: "https://github.com/Ythosa/disguise",
+			want:  nil,
+		},
+		{
+			input: "https://github.com/Ythosa",
+			want:  checks.InvalidInputError{Name: "repository URL"},
+		},
+		{
+			input: "https://golang/something...",
+			want:  checks.InvalidInputError{Name: "repository URL"},
+		},
+		{
+			input: "",
+			want:  checks.InvalidInputError{Name: "repository URL"},
+		},
+		{
+			input: "https://github.com/disguise/Ythosa",
+			want:  nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		if got := checks.CheckRepositoryURL(tc.input); got != tc.want {
+			t.Errorf("CheckRepositoryURL(%q) = %v", tc.input, got)
+		}
+	}
+}

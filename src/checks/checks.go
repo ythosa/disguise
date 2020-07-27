@@ -5,7 +5,7 @@ import "regexp"
 
 // CheckRepositoryURL checks for correctness repository url.
 func CheckRepositoryURL(url string) error {
-	match, _ := regexp.MatchString(`^https://github.com/.*$`, url)
+	match, _ := regexp.MatchString(`^https://github.com/\S*/\S*$`, url)
 	if !match {
 		return InvalidInputError{"repository URL"}
 	}
