@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -235,12 +236,23 @@ func crawl(url, extension string, ignoreDirs []string) []mdFile {
 
 // printResult prints markdown of passed results elements into some out.
 func printResults(out io.Writer, results []mdFile, cfg MarkdownConfig) {
-	for dir, files := range groupByDir(results) {
-		_, err := fmt.Fprint(out, dir.getMarkDown(cfg.Dirs))
+	groupedResults := groupByDir(results)
+	dirKeys := make([]mdDir, 0, len(groupedResults))
+	for k := range groupedResults {
+		dirKeys = append(dirKeys, k)
+	}
+
+	sort.SliceStable(dirKeys, func(i, j int) bool {
+		return dirKeys[i].name < dirKeys[j].name
+	})
+
+	for _, k := range dirKeys {
+		_, err := fmt.Fprint(out, k.getMarkDown(cfg.Dirs))
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, f := range files {
+
+		for _, f := range groupedResults[k] {
 			_, printErr := fmt.Fprint(out, f.getMarkDown(cfg.Files))
 			if printErr != nil {
 				log.Fatal(printErr)
@@ -248,7 +260,6 @@ func printResults(out io.Writer, results []mdFile, cfg MarkdownConfig) {
 		}
 
 		_, err = fmt.Fprint(out, "\n")
-
 		if err != nil {
 			log.Fatal(err)
 		}
