@@ -30,3 +30,29 @@ func TestCheckFilePrefix(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckFolderPrefix(t *testing.T) {
+	testCases := []struct {
+		input string
+		want  error
+	}{
+		{
+			input: "***",
+			want:  nil,
+		},
+		{
+			input: "#### ",
+			want:  nil,
+		},
+		{
+			input: "",
+			want:  checks.InvalidInputError{Name: "folder-prefix"},
+		},
+	}
+
+	for _, tc := range testCases {
+		if got := checks.CheckFolderPrefix(tc.input); got != tc.want {
+			t.Errorf("CheckFolderPrefix(%q) = %v", tc.input, got)
+		}
+	}
+}
